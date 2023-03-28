@@ -8,7 +8,7 @@ import (
 	"github.com/MrBruin-ctrl/runcli/internal/registry"
 	"github.com/c-bata/go-prompt"
 	"github.com/gomodule/redigo/redis"
-	strings2 "strings"
+	"strings"
 	"time"
 )
 
@@ -22,7 +22,7 @@ func (cli *RedisCliDriver) Completer(d prompt.Document) []prompt.Suggest {
 	if currentArg == "" {
 		return []prompt.Suggest{}
 	}
-	args := strings2.Split(d.Text, " ")
+	args := strings.Split(d.Text, " ")
 	return prompt.FilterHasPrefix(redisCMDSuggest, args[0], true)
 }
 
@@ -89,7 +89,7 @@ func (cli *RedisCliDriver) Conn(ctx context.Context) error {
 }
 
 func (cli *RedisCliDriver) Executor(cmd string) {
-	splitCmd := strings2.Split(strings2.TrimSpace(cmd), " ")
+	splitCmd := strings.Split(strings.TrimSpace(cmd), " ")
 	conn := cli.getConn()
 	strings := splitCmd[1:]
 

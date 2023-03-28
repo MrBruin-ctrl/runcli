@@ -1,9 +1,9 @@
 package main
 
 import (
+	_ "github.com/MrBruin-ctrl/runcli/env"
+	"github.com/MrBruin-ctrl/runcli/internal/command"
 	"github.com/c-bata/go-prompt"
-	_ "runcli/env"
-	"runcli/internal/command"
 )
 
 func main() {
