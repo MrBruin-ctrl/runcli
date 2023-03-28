@@ -1,7 +1,7 @@
 package env
 
 import (
-	_ "runcli/env/redis"
+	_ "github.com/MrBruin-ctrl/runcli/env/redis"
 )
 
 func All() {

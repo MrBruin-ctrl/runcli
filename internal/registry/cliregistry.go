@@ -1,7 +1,7 @@
 package registry
 
 import (
-	"runcli/internal/driver"
+	"github.com/MrBruin-ctrl/runcli/internal/driver"
 )
 
 var cliFactory = map[string]driver.CliDriver{}

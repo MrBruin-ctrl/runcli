@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/MrBruin-ctrl/runcli/internal/driver"
+	"github.com/MrBruin-ctrl/runcli/internal/registry"
 	"github.com/c-bata/go-prompt"
 	"github.com/gomodule/redigo/redis"
-	"runcli/internal/driver"
-	"runcli/internal/registry"
 	strings2 "strings"
 	"time"
 )

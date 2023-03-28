@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/MrBruin-ctrl/runcli/internal/driver"
+	"github.com/MrBruin-ctrl/runcli/internal/registry"
 	"github.com/c-bata/go-prompt"
-	"runcli/internal/driver"
-	"runcli/internal/registry"
 )
 
 var CurrentDriver driver.CliDriver

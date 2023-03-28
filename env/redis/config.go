@@ -1,9 +1,9 @@
 package redis
 
 import (
+	"github.com/MrBruin-ctrl/runcli/internal/utils"
 	log "github.com/sirupsen/logrus"
 	"os"
-	"runcli/internal/utils"
 )
 
 type RedisConf struct {
