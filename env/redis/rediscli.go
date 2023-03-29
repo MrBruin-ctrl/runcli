@@ -6,6 +6,7 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/MrBruin-ctrl/runcli/internal/driver"
 	"github.com/MrBruin-ctrl/runcli/internal/registry"
+	"github.com/MrBruin-ctrl/runcli/internal/utils"
 	"github.com/c-bata/go-prompt"
 	"github.com/gomodule/redigo/redis"
 	"strings"
@@ -17,12 +18,19 @@ type RedisCliDriver struct {
 	conn redis.Conn
 }
 
+func (cli *RedisCliDriver) InitConfig() {
+	InitConfig()
+}
+
 func (cli *RedisCliDriver) Completer(d prompt.Document) []prompt.Suggest {
 	currentArg := d.GetWordBeforeCursor()
 	if currentArg == "" {
 		return []prompt.Suggest{}
 	}
 	args := strings.Split(d.Text, " ")
+	if len(args) > 1 {
+		return []prompt.Suggest{}
+	}
 	return prompt.FilterHasPrefix(redisCMDSuggest, args[0], true)
 }
 
@@ -35,7 +43,6 @@ func (cli *RedisCliDriver) getConn() redis.Conn {
 }
 
 func (cli *RedisCliDriver) SurveyConfig() {
-	InitConfig()
 	configs := GetConfigIfExist()
 	if len(configs) != 0 {
 		options := make([]string, 0)
@@ -56,25 +63,21 @@ func (cli *RedisCliDriver) SurveyConfig() {
 				return ""
 			},
 		}
-		survey.AskOne(selects, &ans)
+		utils.AskOne(selects, &ans)
 		if ans != elems {
 			cli.RedisConf = configs[ans]
 			return
 		}
 	}
 	redisConfig := New()
-	err := survey.Ask(BaseQs, &redisConfig)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
+	utils.Ask(BaseQs, &redisConfig)
 	//保存配置，如果名称一样，则覆盖配置
 	SaveConfig(redisConfig)
 	cli.RedisConf = redisConfig
 }
 
 func (cli *RedisCliDriver) Exit() {
-	defer cli.getConn().Close()
+	cli.getConn().Close()
 }
 
 func (cli *RedisCliDriver) Conn(ctx context.Context) error {
@@ -90,6 +93,10 @@ func (cli *RedisCliDriver) Conn(ctx context.Context) error {
 
 func (cli *RedisCliDriver) Executor(cmd string) {
 	splitCmd := strings.Split(strings.TrimSpace(cmd), " ")
+	if len(splitCmd) == 0 {
+		fmt.Println("")
+		return
+	}
 	conn := cli.getConn()
 	strings := splitCmd[1:]
 
@@ -97,7 +104,7 @@ func (cli *RedisCliDriver) Executor(cmd string) {
 	for _, arg := range strings {
 		args = append(args, arg)
 	}
-	s, err := redis.String(conn.Do(splitCmd[0], args...))
+	s, err := redis.Values(conn.Do(splitCmd[0], args...))
 	if err != nil {
 		fmt.Println(err)
 		return

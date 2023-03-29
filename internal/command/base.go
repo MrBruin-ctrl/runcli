@@ -6,16 +6,14 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/MrBruin-ctrl/runcli/internal/driver"
 	"github.com/MrBruin-ctrl/runcli/internal/registry"
+	"github.com/MrBruin-ctrl/runcli/internal/utils"
 	"github.com/c-bata/go-prompt"
 )
 
 var CurrentDriver driver.CliDriver
 
 func ChooseCliDriver() {
-	if CurrentDriver != nil {
-		CurrentDriver.Exit()
-		CurrentDriver = nil
-	}
+	closeConnectIfExist()
 	//选择实现的版本
 	chooseCli := ""
 	names := registry.GetCliNames()
@@ -23,12 +21,17 @@ func ChooseCliDriver() {
 		Message: "Choose a client:",
 		Options: names,
 	}
-	survey.AskOne(prompt, &chooseCli)
+	utils.AskOne(prompt, &chooseCli)
 	cliDriver := registry.GetCliByName(chooseCli)
 	CurrentDriver = cliDriver
+	cliConnect()
+}
+
+func cliConnect() {
 	ctx := context.Background()
 	//配置参数
 	for {
+		CurrentDriver.InitConfig()
 		CurrentDriver.SurveyConfig()
 		err := CurrentDriver.Conn(ctx)
 		if err != nil {
@@ -37,7 +40,7 @@ func ChooseCliDriver() {
 			confirm := &survey.Confirm{
 				Message: "do you want retry?",
 			}
-			survey.AskOne(confirm, &isKeep)
+			utils.AskOne(confirm, &isKeep)
 			if !isKeep {
 				break
 			}
@@ -45,7 +48,13 @@ func ChooseCliDriver() {
 		}
 		break
 	}
+}
 
+func closeConnectIfExist() {
+	if CurrentDriver != nil {
+		CurrentDriver.Exit()
+		CurrentDriver = nil
+	}
 }
 
 func GetActiveCmdExecutor(cmd string) {
@@ -56,6 +65,21 @@ func GetActiveCmdCompleter(document prompt.Document) []prompt.Suggest {
 	return CurrentDriver.Completer(document)
 }
 
+func GetActiveKeyBind() []prompt.KeyBind {
+	return []prompt.KeyBind{
+		{
+			Key: prompt.ControlR, Fn: func(buffer *prompt.Buffer) {
+				//重新执行
+				ChooseCliDriver()
+			}},
+		//{
+		//	Key: prompt.ControlM, Fn: func(buffer *prompt.Buffer) {
+		//		closeConnectIfExist()
+		//		cliConnect()
+		//	}},
+	}
+}
+
 func CommonLivePrefix() (prefix string, useLivePrefix bool) {
-	return fmt.Sprint(CurrentDriver.LivePrefix()), true
+	return CurrentDriver.LivePrefix(), true
 }

@@ -11,10 +11,7 @@ func main() {
 	p := prompt.New(
 		command.GetActiveCmdExecutor,
 		command.GetActiveCmdCompleter,
-		prompt.OptionAddKeyBind(prompt.KeyBind{Key: prompt.F2, Fn: func(buffer *prompt.Buffer) {
-			//重新执行
-			command.ChooseCliDriver()
-		}}),
+		prompt.OptionAddKeyBind(command.GetActiveKeyBind()...),
 		// register hot key for select active env
 		// register live prefix that will be change automatically when env changed
 		prompt.OptionLivePrefix(command.CommonLivePrefix),

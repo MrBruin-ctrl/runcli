@@ -9,6 +9,7 @@ type CliDriver interface {
 	Prompt
 	// CliName 客户端名称，用于前排提示
 	CliName() string
+	InitConfig()
 	SurveyConfig()
 	Conn(context.Context) error
 	Exit()
